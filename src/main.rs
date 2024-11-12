@@ -1,8 +1,13 @@
 use std::io::{Read, Write};
 use std::net::TcpListener;
 
-fn main() {
+fn send_pong_response(mut stream: std::net::TcpStream) {
+    let response = "+PONG\r\n";
+    stream.write(response.as_bytes()).unwrap();
+    stream.flush().unwrap();
+}
 
+fn main() {
     let listener = TcpListener::bind("127.0.0.1:6379").unwrap();
 
     for stream in listener.incoming() {
@@ -12,9 +17,7 @@ fn main() {
                 let mut buffer = [0; 512];
                 match stream.read(&mut buffer) {
                     Ok(_) => {
-                        let response = "+PONG\r\n";
-                        stream.write(response.as_bytes()).unwrap();
-                        stream.flush().unwrap();
+                        send_pong_response(stream);
                     }
                     Err(e) => {
                         println!("error reading from stream: {}", e);
@@ -26,5 +29,4 @@ fn main() {
             }
         }
     }
-    
 }
