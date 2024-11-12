@@ -28,7 +28,7 @@ impl Command {
 pub fn handle_command(
     command: Command,
     parts: &[&str],
-    mut stream: TcpStream,
+    stream: TcpStream,
     db: Arc<Mutex<Db>>,
 ) {
     match command {
