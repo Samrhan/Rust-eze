@@ -15,12 +15,16 @@ fn main() {
             Ok(mut stream) => {
                 println!("accepted new connection");
                 let mut buffer = [0; 512];
-                match stream.read(&mut buffer) {
-                    Ok(_) => {
-                        send_pong_response(stream);
-                    }
-                    Err(e) => {
-                        println!("error reading from stream: {}", e);
+                loop {
+                    match stream.read(&mut buffer) {
+                        Ok(0) => break, // Connection closed
+                        Ok(_) => {
+                            send_pong_response(stream.try_clone().unwrap());
+                        }
+                        Err(e) => {
+                            println!("error reading from stream: {}", e);
+                            break;
+                        }
                     }
                 }
             }
