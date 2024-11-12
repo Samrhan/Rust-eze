@@ -76,8 +76,7 @@ fn handle_client(mut stream: std::net::TcpStream, db: Arc<Mutex<Db>>) {
 }
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:6379").unwrap();
-    let db = Arc::new(Mutex::new(HashMap::new()));
-
+    let db: Arc<Mutex<HashMap<String, (String, Option<Instant>)>>> = Arc::new(Mutex::new(HashMap::new()));
     let db_clone = Arc::clone(&db);
     thread::spawn(move || {
         loop {
