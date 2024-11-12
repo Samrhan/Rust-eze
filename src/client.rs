@@ -3,14 +3,14 @@ use std::net::TcpStream;
 use std::sync::{Arc, Mutex};
 
 use crate::command::{handle_command, Command};
-use crate::server::Db;
+use crate::server::{Db, Config};
 
 fn send_response(mut stream: TcpStream, response: &str) {
     stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
 }
 
-pub fn handle_client(mut stream: TcpStream, db: Arc<Mutex<Db>>) {
+pub fn handle_client(mut stream: TcpStream, db: Arc<Mutex<Db>>, config: Arc<Config>) {
     let mut buffer = [0; 512];
     loop {
         match stream.read(&mut buffer) {
@@ -21,7 +21,7 @@ pub fn handle_client(mut stream: TcpStream, db: Arc<Mutex<Db>>) {
                 if parts.len() > 4 {
                     let command = parts[2].to_uppercase();
                     let command = Command::from_str(&command);
-                    handle_command(command, &parts, stream.try_clone().unwrap(), db.clone());
+                    handle_command(command, &parts, stream.try_clone().unwrap(), db.clone(), config.clone());
                 } else {
                     send_response(stream.try_clone().unwrap(), "+PONG\r\n");
                 }

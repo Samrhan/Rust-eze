@@ -3,13 +3,14 @@ use std::net::TcpStream;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-use crate::server::Db;
+use crate::server::{Db, Config};
 
 pub enum Command {
     SET,
     GET,
     ECHO,
     PING,
+    CONFIG,
     UNKNOWN,
 }
 
@@ -20,6 +21,7 @@ impl Command {
             "GET" => Command::GET,
             "ECHO" => Command::ECHO,
             "PING" => Command::PING,
+            "CONFIG" => Command::CONFIG,
             _ => Command::UNKNOWN,
         }
     }
@@ -30,6 +32,7 @@ pub fn handle_command(
     parts: &[&str],
     stream: TcpStream,
     db: Arc<Mutex<Db>>,
+    config: Arc<Config>,
 ) {
     match command {
         Command::SET => {
@@ -70,6 +73,20 @@ pub fn handle_command(
         }
         Command::PING | Command::UNKNOWN => {
             send_response(stream, "+PONG\r\n");
+        }
+        Command::CONFIG => {
+            if parts.len() > 4 && parts[4].to_uppercase() == "GET" {
+                if parts.len() > 5 {
+                    let param = parts[5].to_lowercase();
+                    let value = match param.as_str() {
+                        "dir" => &config.dir,
+                        "dbfilename" => &config.dbfilename,
+                        _ => "",
+                    };
+                    let response = format!("*2\r\n${}\r\n{}\r\n${}\r\n{}\r\n", param.len(), param, value.len(), value);
+                    send_response(stream, &response);
+                }
+            }
         }
     }
 }

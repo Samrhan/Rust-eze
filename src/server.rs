@@ -8,9 +8,15 @@ use crate::client::handle_client;
 
 pub type Db = HashMap<String, (String, Option<Instant>)>;
 
-pub fn start(address: &str) {
+pub struct Config {
+    pub dir: String,
+    pub dbfilename: String,
+}
+
+pub fn start(address: &str, dir: String, dbfilename: String) {
     let listener = TcpListener::bind(address).unwrap();
     let db: Arc<Mutex<Db>> = Arc::new(Mutex::new(HashMap::new()));
+    let config = Arc::new(Config { dir, dbfilename });
 
     // Start a separate thread for key expiry
     let db_clone = Arc::clone(&db);
@@ -27,8 +33,9 @@ pub fn start(address: &str) {
             Ok(stream) => {
                 println!("accepted new connection");
                 let db = Arc::clone(&db);
+                let config = Arc::clone(&config);
                 thread::spawn(move || {
-                    handle_client(stream, db);
+                    handle_client(stream, db, config);
                 });
             }
             Err(e) => {
