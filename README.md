@@ -1,34 +1,45 @@
-[![progress-banner](https://backend.codecrafters.io/progress/redis/14b95644-6378-4682-ad06-4f428ed69c03)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+# Rust Redis Server
 
-This is a starting point for Rust solutions to the
-["Build Your Own Redis" Challenge](https://codecrafters.io/challenges/redis).
+## Overview
 
-In this challenge, you'll build a toy Redis clone that's capable of handling
-basic commands like `PING`, `SET` and `GET`. Along the way we'll learn about
-event loops, the Redis protocol and more.
+This project is a simple Redis TCP server implemented in Rust. It supports basic commands like `SET`, `GET`, `ECHO`, and `PING`. The server uses multithreading to handle multiple client connections concurrently, ensuring efficient and responsive communication.
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+## Why This Implementation?
 
-# Passing the first stage
+### Rust
 
-The entry point for your Redis implementation is in `src/main.rs`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+Rust is chosen for its performance, safety, and concurrency features. It provides memory safety without a garbage collector, making it ideal for systems programming and network applications.
+
+### TCP Server
+
+A TCP server is implemented to handle client-server communication over a reliable, connection-oriented protocol. This ensures that data is transmitted accurately and in order.
+
+### Commands
+
+The server supports the following commands:
+- `SET`: Stores a key-value pair in the database with an optional expiry time.
+- `GET`: Retrieves the value associated with a key.
+- `ECHO`: Returns the input message.
+- `PING`: Responds with `PONG`.
+
+## Code Structure
+
+- `src/main.rs`: Entry point of the application. Starts the server.
+- `src/server.rs`: Contains the server implementation, including the listener and connection handling.
+- `src/client.rs`: Handles individual client connections and processes commands.
+- `src/command.rs`: Defines supported commands and their handling logic.
+
+## How It Works
+
+1. **Server Initialization**: The server binds to a specified address and starts listening for incoming connections.
+2. **Connection Handling**: For each incoming connection, a new thread is spawned to handle the client.
+3. **Command Processing**: The client handler reads data from the client, parses the command, and executes the appropriate action.
+4. **Database Management**: The server maintains a shared in-memory database using `Arc<Mutex<Db>>`. This allows safe concurrent access and modification of the database.
+
+## Running the Server
+
+To run the server, use the following command:
 
 ```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
+cargo run
 ```
-
-That's all!
-
-# Stage 2 & beyond
-
-Note: This section is for stages 2 and beyond.
-
-1. Ensure you have `cargo (1.82)` installed locally
-1. Run `./your_program.sh` to run your Redis server, which is implemented in
-   `src/main.rs`. This command compiles your Rust project, so it might be slow
-   the first time you run it. Subsequent runs will be fast.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
