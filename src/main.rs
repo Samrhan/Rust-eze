@@ -12,12 +12,9 @@ fn main() {
                 let mut buffer = [0; 512];
                 match stream.read(&mut buffer) {
                     Ok(_) => {
-                        let request = String::from_utf8_lossy(&buffer[..]);
-                        if request.trim() == "PING" {
-                            let response = "PONG\n";
-                            stream.write(response.as_bytes()).unwrap();
-                            stream.flush().unwrap();
-                        }
+                        let response = "+PONG\r\n";
+                        stream.write(response.as_bytes()).unwrap();
+                        stream.flush().unwrap();
                     }
                     Err(e) => {
                         println!("error reading from stream: {}", e);
