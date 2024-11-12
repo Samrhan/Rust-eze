@@ -41,6 +41,11 @@ fn handle_client(mut stream: std::net::TcpStream, db: Arc<Mutex<HashMap<String, 
                                 }
                             }
                         }
+                        "ECHO" => {
+                            let message = parts[4];
+                            let response = format!("${}\r\n{}\r\n", message.len(), message);
+                            send_response(stream.try_clone().unwrap(), &response);
+                        }
                         _ => {
                             send_response(stream.try_clone().unwrap(), "+PONG\r\n");
                         }
